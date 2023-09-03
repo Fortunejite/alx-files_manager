@@ -17,7 +17,7 @@ export default class UsersController {
         res.status(400).send({ error: 'Already exist' });
       } else {
         const hashedPassword = sha1(password);
-        const newUser = dbClient.users.insertOne({ email, password: hashedPassword });
+        const newUser = await dbClient.users.insertOne({ email, password: hashedPassword });
         res.send(201).send({ id: newUser.insertedId, email });
       }
     }
