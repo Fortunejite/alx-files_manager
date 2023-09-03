@@ -1,4 +1,5 @@
 import dbClient from '../utils/db';
+import redisClient from '../utils/redis';
 
 const sha1 = require('sha1');
 
@@ -18,8 +19,22 @@ export default class UsersController {
       } else {
         const hashedPassword = sha1(password);
         const newUser = await dbClient.users.insertOne({ email, password: hashedPassword });
-        res.send(201).send({ id: newUser.insertedId, email });
+        res.status(201).send({ id: newUser.insertedId, email });
       }
+    }
+  }
+
+  static async getMe(req, res) {
+    const userId = await redisClient.get(req.headers['x-token']);
+    if (userId) {
+      const user = await dbClient.users.findOne({ _id: { $eq: userId } });
+      if (user) {
+        res.send({ user._id, user.email });
+      } else {
+        res.status(401).send({ error: 'Unauthorized' });
+      }
+    } else {
+      res.status(401).send({ error: 'Unauthorized' });
     }
   }
 }
