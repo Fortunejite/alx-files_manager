@@ -29,7 +29,7 @@ export default class UsersController {
     if (userId) {
       const user = await dbClient.users.findOne({ _id: { $eq: userId } });
       if (user) {
-        res.send({ user._id, user.email });
+        res.send({ _id: user._id, email: user.email });
       } else {
         res.status(401).send({ error: 'Unauthorized' });
       }
